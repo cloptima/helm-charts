@@ -4,7 +4,7 @@
 image:
   repository: cloptimaai/cloptima-k8s-agent
   pullPolicy: IfNotPresent
-  tag: "prod-latest"
+  tag: "prod-20251210-5d3e9c8"
 
 imagePullSecrets: []
 nameOverride: ""

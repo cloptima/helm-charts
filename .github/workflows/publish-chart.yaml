@@ -1,0 +1,67 @@
+name: Publish Helm Chart
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'cloptima-k8s-agent/**'
+      - '.github/workflows/publish-chart.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  CHART_NAME: cloptima-k8s-agent
+  CHART_REPO_URL: https://cloptima.github.io/helm-charts
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.13.3
+
+      - name: Lint Helm chart
+        run: helm lint $CHART_NAME
+
+      - name: Package Helm chart
+        run: |
+          mkdir -p repo
+          helm package $CHART_NAME --destination repo
+
+      - name: Generate index.yaml
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p repo
+          if git ls-remote --heads origin gh-pages >/dev/null 2>&1; then
+            git fetch origin gh-pages:refs/heads/gh-pages
+            git checkout gh-pages -- index.yaml || true
+          fi
+          if [ -f index.yaml ]; then
+            mv index.yaml repo/index-old.yaml
+          fi
+          if [ -f repo/index-old.yaml ]; then
+            helm repo index repo --url "$CHART_REPO_URL" --merge repo/index-old.yaml
+            rm repo/index-old.yaml
+          else
+            helm repo index repo --url "$CHART_REPO_URL"
+          fi
+
+      - name: Publish chart to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./repo
+          publish_branch: gh-pages
+          keep_files: true

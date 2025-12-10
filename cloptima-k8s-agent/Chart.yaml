@@ -3,13 +3,13 @@ name: cloptima-k8s-agent
 description: Cloptima Kubernetes resource and metrics agent
 type: application
 version: 0.1.0
-appVersion: "dev-latest"
+appVersion: "v0.1.0"
 keywords:
   - kubernetes
   - monitoring
   - cost-optimization
   - resource-tracking
-home: https://cloptima.ai
+home: https://github.com/cloptima/helm-charts
 maintainers:
   - name: Team Cloptima
   - email: hello@cloptima.ai
