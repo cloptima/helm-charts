@@ -44,19 +44,22 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p repo
+          existing_index="repo/index-old.yaml"
           if git ls-remote --heads origin gh-pages >/dev/null 2>&1; then
             git fetch origin gh-pages:refs/heads/gh-pages
-            git checkout gh-pages -- index.yaml || true
+            if git show gh-pages:index.yaml >/dev/null 2>&1; then
+              git show gh-pages:index.yaml > "$existing_index"
+            fi
           fi
-          if [ -f index.yaml ]; then
-            mv index.yaml repo/index-old.yaml
-          fi
-          if [ -f repo/index-old.yaml ]; then
-            helm repo index repo --url "$CHART_REPO_URL" --merge repo/index-old.yaml
-            rm repo/index-old.yaml
+          if [ -f "$existing_index" ]; then
+            helm repo index repo --url "$CHART_REPO_URL" --merge "$existing_index"
+            rm "$existing_index"
           else
             helm repo index repo --url "$CHART_REPO_URL"
           fi
+
+      - name: Add landing page
+        run: cp site/index.html repo/index.html
 
       - name: Publish chart to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3

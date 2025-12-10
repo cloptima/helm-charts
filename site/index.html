@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cloptima Helm Charts</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px auto; max-width: 720px; line-height: 1.5; color: #1c1c1c; }
+    code { background: #f2f4f8; padding: 2px 4px; border-radius: 4px; }
+    pre { background: #f2f4f8; padding: 12px; border-radius: 6px; overflow-x: auto; }
+    h1 { color: #0f62fe; }
+    a { color: #0f62fe; }
+  </style>
+</head>
+<body>
+  <h1>Cloptima Helm Charts</h1>
+  <p>This GitHub Pages site hosts the Helm repository for the Cloptima Kubernetes Agent and any future public charts.</p>
+  <h2>Use the repository</h2>
+  <p>Add the repo to Helm and install the agent:</p>
+  <pre><code>helm repo add cloptima https://cloptima.github.io/helm-charts
+helm repo update
+helm install cloptima-k8s-agent cloptima/cloptima-k8s-agent \
+  --namespace cloptima --create-namespace \
+  --set config.customerID="&lt;your-customer-uuid&gt;" \
+  --set config.cloudAccountID="&lt;your-cloud-account-uuid&gt;"</code></pre>
+  <p>The Helm <code>index.yaml</code> backing this repo is available directly at <a href="https://cloptima.github.io/helm-charts/index.yaml">https://cloptima.github.io/helm-charts/index.yaml</a>.</p>
+  <h2>Source &amp; issues</h2>
+  <p>Visit the <a href="https://github.com/cloptima/helm-charts">cloptima/helm-charts</a> repository for documentation and issue tracking.</p>
+</body>
+</html>
