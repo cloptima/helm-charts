@@ -1,0 +1,12 @@
+{{- /*
+Create the namespace when a namespaceOverride is provided.
+This avoids relying on helm --namespace for customer installations.
+*/ -}}
+{{- if .Values.namespaceOverride }}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ include "cloptima-k8s-agent.namespace" . }}
+  labels:
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}

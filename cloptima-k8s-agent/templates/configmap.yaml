@@ -1,0 +1,32 @@
+{{- $existingCM := lookup "v1" "ConfigMap" (include "cloptima-k8s-agent.namespace" .) (include "cloptima-k8s-agent.fullname" .) }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "cloptima-k8s-agent.fullname" . }}
+  namespace: {{ include "cloptima-k8s-agent.namespace" . }}
+  labels:
+    {{- include "cloptima-k8s-agent.labels" . | nindent 4 }}
+data:
+  CUSTOMER_ID: {{ if $existingCM }}{{ index $existingCM.data "CUSTOMER_ID" | quote }}{{ else }}{{ .Values.config.customerID | quote }}{{ end }}
+  CLOUD_ACCOUNT_ID: {{ if $existingCM }}{{ index $existingCM.data "CLOUD_ACCOUNT_ID" | quote }}{{ else }}{{ .Values.config.cloudAccountID | quote }}{{ end }}
+  CLUSTER_NAME: {{ if $existingCM }}{{ index $existingCM.data "CLUSTER_NAME" | quote }}{{ else }}{{ .Values.config.clusterName | quote }}{{ end }}
+  CLOPTIMA_API_URL: {{ .Values.config.cloptimaApiURL | quote }}
+  K8S_API_QPS: {{ .Values.config.k8sAPIQPS | quote }}
+  K8S_API_BURST: {{ .Values.config.k8sAPIBurst | quote }}
+  FULL_SYNC_INTERVAL_MINUTES: {{ .Values.config.fullSyncIntervalMinutes | quote }}
+  UPLOAD_BATCH_SIZE: {{ .Values.config.uploadBatchSize | quote }}
+  UPLOAD_BATCH_TIMEOUT: {{ .Values.config.uploadBatchTimeout | quote }}
+  UPLOAD_QUEUE_SIZE: {{ .Values.config.uploadQueueSize | quote }}
+  UPLOAD_WORKERS: {{ .Values.config.uploadWorkers | quote }}
+  MAX_RETRIES: {{ .Values.config.maxRetries | quote }}
+  INITIAL_BACKOFF: {{ .Values.config.initialBackoff | quote }}
+  MAX_BACKOFF: {{ .Values.config.maxBackoff | quote }}
+  BACKOFF_FACTOR: {{ .Values.config.backoffFactor | quote }}
+  ENABLE_COMPRESSION: {{ .Values.config.enableCompression | quote }}
+  {{- if .Values.config.namespaceFilter }}
+  NAMESPACE_FILTER: {{ .Values.config.namespaceFilter | quote }}
+  {{- end }}
+  METRICS_ENABLED: {{ .Values.config.metricsEnabled | quote }}
+  METRICS_INTERVAL_MINUTES: {{ .Values.config.metricsIntervalMinutes | quote }}
+  LOG_LEVEL: {{ .Values.config.logLevel | quote }}
+  LOG_FORMAT: {{ .Values.config.logFormat | quote }}

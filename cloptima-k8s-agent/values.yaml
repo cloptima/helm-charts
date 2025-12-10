@@ -1,0 +1,168 @@
+## Cloptima K8s Agent Helm Chart Values
+
+## Image configuration
+image:
+  repository: cloptimaai/cloptima-k8s-agent
+  pullPolicy: IfNotPresent
+  tag: "prod-latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+namespaceOverride: "cloptima"
+
+## Service Account
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+## Pod configuration
+replicaCount: 1
+
+podAnnotations: {}
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 1000
+  runAsGroup: 1000
+  fsGroup: 1000
+  fsGroupChangePolicy: "OnRootMismatch"
+
+securityContext:
+  allowPrivilegeEscalation: false
+  privileged: false
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: true
+  seccompProfile:
+    type: RuntimeDefault
+
+tmpVolume:
+  medium: "Memory"
+  sizeLimit: "128Mi"
+
+## Resources
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+## Node selection
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+## Collector Configuration
+config:
+  ## Cloptima Platform
+  customerID: ""  # REQUIRED: Your Cloptima customer ID (UUID)
+  cloudAccountID: ""  # REQUIRED: Cloud account ID (UUID)
+  clusterName: ""  # Optional override; defaults to auto-detected
+  cloptimaApiURL: "https://api.cloptima.ai"
+
+  ## K8s API Rate Limiting
+  k8sAPIQPS: 50
+  k8sAPIBurst: 100
+
+  ## Collection Settings
+  fullSyncIntervalMinutes: 60  # Full sync every hour
+  uploadBatchSize: 100
+  uploadBatchTimeout: "30s"
+  uploadQueueSize: 10000
+  uploadWorkers: 5
+
+  ## Retry Configuration
+  maxRetries: 10
+  initialBackoff: "1s"
+  maxBackoff: "300s"
+  backoffFactor: 5.0
+  enableCompression: true
+
+  ## Namespace Filtering (optional)
+  # namespaceFilter: "default,kube-system"  # Comma-separated list, empty = all namespaces
+
+  ## Metrics Collection
+  metricsEnabled: true
+  metricsIntervalMinutes: 5
+
+  ## Logging
+  logLevel: "info"  # debug, info, warn, error
+  logFormat: "json"  # json or text
+
+## RBAC
+rbac:
+  create: true
+
+## Service (for metrics/health endpoints)
+service:
+  type: ClusterIP
+  port: 8011
+  annotations: {}
+
+## Metrics (Prometheus)
+metrics:
+  enabled: true
+  path: /metrics
+  port: 8011
+  serviceMonitor:
+    enabled: false
+    interval: 30s
+    scrapeTimeout: 10s
+
+## Health Checks
+livenessProbe:
+  httpGet:
+    path: /health/live
+    port: 8011
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /health/ready
+    port: 8011
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+## Environment Variables (advanced)
+env: []
+  # - name: CUSTOM_VAR
+  #   value: "custom-value"
+
+## Extra Volumes
+extraVolumes: []
+  # - name: temp
+  #   emptyDir: {}
+
+extraVolumeMounts: []
+  # - name: temp
+  #   mountPath: /tmp
+
+## Registration (K8s onboarding)
+registration:
+  enabled: true
+  apiUrl: ""
+  installationToken: ""  # Provided during onboarding
+  skipIfConfigured: true
+  httpTimeout: "30s"
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 50m
+      memory: 64Mi
+
+secrets:
+  existingSecret: ""

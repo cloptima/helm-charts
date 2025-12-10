@@ -1,0 +1,122 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "cloptima-k8s-agent.fullname" . }}
+  namespace: {{ include "cloptima-k8s-agent.namespace" . }}
+  labels:
+    {{- include "cloptima-k8s-agent.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "cloptima-k8s-agent.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "cloptima-k8s-agent.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "cloptima-k8s-agent.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.registration.enabled }}
+      initContainers:
+      - name: cloptima-k8s-agent-register
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command: ["/app/register"]
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 12 }}
+        env:
+        - name: REGISTRATION_API_URL
+          value: {{ default .Values.config.cloptimaApiURL .Values.registration.apiUrl | quote }}
+        - name: REGISTRATION_CONFIGMAP_NAME
+          value: {{ include "cloptima-k8s-agent.fullname" . }}
+        - name: REGISTRATION_SECRET_NAME
+          value: {{ include "cloptima-k8s-agent.secretName" . }}
+        - name: REGISTRATION_SKIP_IF_CONFIGURED
+          value: {{ .Values.registration.skipIfConfigured | quote }}
+        - name: REGISTRATION_HTTP_TIMEOUT
+          value: {{ .Values.registration.httpTimeout | quote }}
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: INSTALLATION_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "cloptima-k8s-agent.secretName" . }}
+              key: INSTALLATION_TOKEN
+        {{- if .Values.registration.resources }}
+        resources:
+          {{- toYaml .Values.registration.resources | nindent 12 }}
+        {{- end }}
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      {{- end }}
+      containers:
+      - name: cloptima-k8s-agent
+        securityContext:
+          {{- toYaml .Values.securityContext | nindent 12 }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        envFrom:
+        - configMapRef:
+            name: {{ include "cloptima-k8s-agent.fullname" . }}
+        {{- if or .Values.registration.enabled .Values.secrets.existingSecret }}
+        - secretRef:
+            name: {{ include "cloptima-k8s-agent.secretName" . }}
+        {{- end }}
+        {{- with .Values.env }}
+        env:
+          {{- toYaml . | nindent 12 }}
+        {{- end }}
+        ports:
+        - name: http
+          containerPort: 8011
+          protocol: TCP
+        livenessProbe:
+          {{- toYaml .Values.livenessProbe | nindent 12 }}
+        readinessProbe:
+          {{- toYaml .Values.readinessProbe | nindent 12 }}
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        {{- with .Values.extraVolumeMounts }}
+        {{- toYaml . | nindent 12 }}
+        {{- end }}
+      volumes:
+      - name: tmp
+        emptyDir:
+          {{- with .Values.tmpVolume.medium }}
+          medium: {{ . | quote }}
+          {{- end }}
+          {{- with .Values.tmpVolume.sizeLimit }}
+          sizeLimit: {{ . | quote }}
+          {{- end }}
+      {{- with .Values.extraVolumes }}
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
