@@ -4,7 +4,7 @@
 image:
   repository: cloptimaai/cloptima-k8s-agent
   pullPolicy: IfNotPresent
-  tag: "prod-20251210-5d3e9c8"
+  tag: "prod-20251211-3be53e9"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -108,7 +108,7 @@ service:
 
 ## Metrics (Prometheus)
 metrics:
-  enabled: true
+  enabled: false
   path: /metrics
   port: 8011
   serviceMonitor:
