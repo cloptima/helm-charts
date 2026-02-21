@@ -3,8 +3,8 @@
 ## Image configuration
 image:
   repository: cloptimaai/cloptima-k8s-agent
-  pullPolicy: IfNotPresent
-  tag: "prod-20251212-8c173bd"
+  pullPolicy: Always
+  tag: "dev-latest"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -49,7 +49,7 @@ resources:
     cpu: 500m
     memory: 512Mi
   requests:
-    cpu: 100m
+    cpu: 50m
     memory: 128Mi
 
 ## Node selection
@@ -68,29 +68,42 @@ config:
   cloptimaApiURL: "https://api.cloptima.ai"
 
   ## K8s API Rate Limiting
+  # Controls throttling for informer watches and API calls; reduce if cluster has strict quotas
   k8sAPIQPS: 50
   k8sAPIBurst: 100
 
   ## Collection Settings
-  fullSyncIntervalMinutes: 60  # Full sync every hour
-  uploadBatchSize: 100
-  uploadBatchTimeout: "30s"
-  uploadQueueSize: 10000
-  uploadWorkers: 5
+  fullSyncInterval: "1h"  # Periodic full-sync interval to detect drift
+  incrementalSync: true  # Enable incremental watch updates between full syncs
+  batchSize: 2000  # Max entities per upload batch
+  batchTimeout: "300s"  # Flush incomplete batches after timeout
+  uploadQueueSize: 10000  # Internal queue buffer size for collected entities
+  informerResync: "10m"  # Force relist unchanged resources at interval for drift detection
 
   ## Retry Configuration
   maxRetries: 10
   initialBackoff: "1s"
-  maxBackoff: "300s"
+  maxBackoff: "600s"
   backoffFactor: 5.0
-  enableCompression: true
-
-  ## Namespace Filtering (optional)
-  # namespaceFilter: "default,kube-system"  # Comma-separated list, empty = all namespaces
+  enableCompression: true  # Gzip compress uploads to API Gateway
 
   ## Metrics Collection
-  metricsEnabled: true
-  metricsIntervalMinutes: 5
+  # Kubelet stats collection for pod CPU/memory usage
+  metricsCollectionEnabled: true
+  metricsCollectionInterval: "5m"
+
+  ## K8s Events
+  # Event collection for anomaly detection (Warning/Error events tracked)
+  enableEventCollection: true
+  eventRetention: "24h"  # Local cache retention before pruning
+  eventPollInterval: "30s"
+
+  ## Prometheus Integration (Advanced)
+  # Internal metrics exporter - typically disabled unless debugging agent itself
+  prometheusExporterEnabled: false  # Expose /metrics endpoint for agent internals
+
+  ## Server
+  port: "8011"
 
   ## Logging
   logLevel: "info"  # debug, info, warn, error
@@ -131,7 +144,7 @@ readinessProbe:
     path: /health/ready
     port: 8011
   initialDelaySeconds: 10
-  periodSeconds: 5
+  periodSeconds: 10
   timeoutSeconds: 3
   failureThreshold: 3
 
@@ -158,10 +171,10 @@ registration:
   httpTimeout: "30s"
   resources:
     limits:
-      cpu: 200m
+      cpu: 50m
       memory: 256Mi
     requests:
-      cpu: 50m
+      cpu: 10m
       memory: 64Mi
 
 secrets:

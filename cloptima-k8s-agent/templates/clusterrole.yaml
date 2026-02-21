@@ -11,6 +11,9 @@ rules:
     resources:
       - nodes
       - nodes/status
+      - nodes/proxy
+      - nodes/stats
+      - nodes/log
       - namespaces
       - pods
       - pods/status

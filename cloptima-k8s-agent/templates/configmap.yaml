@@ -13,20 +13,23 @@ data:
   CLOPTIMA_API_URL: {{ .Values.config.cloptimaApiURL | quote }}
   K8S_API_QPS: {{ .Values.config.k8sAPIQPS | quote }}
   K8S_API_BURST: {{ .Values.config.k8sAPIBurst | quote }}
-  FULL_SYNC_INTERVAL_MINUTES: {{ .Values.config.fullSyncIntervalMinutes | quote }}
-  UPLOAD_BATCH_SIZE: {{ .Values.config.uploadBatchSize | quote }}
-  UPLOAD_BATCH_TIMEOUT: {{ .Values.config.uploadBatchTimeout | quote }}
+  FULL_SYNC_INTERVAL: {{ .Values.config.fullSyncInterval | quote }}
+  INCREMENTAL_SYNC: {{ .Values.config.incrementalSync | quote }}
+  BATCH_SIZE: {{ .Values.config.batchSize | quote }}
+  BATCH_TIMEOUT: {{ .Values.config.batchTimeout | quote }}
   UPLOAD_QUEUE_SIZE: {{ .Values.config.uploadQueueSize | quote }}
-  UPLOAD_WORKERS: {{ .Values.config.uploadWorkers | quote }}
+  INFORMER_RESYNC: {{ .Values.config.informerResync | quote }}
   MAX_RETRIES: {{ .Values.config.maxRetries | quote }}
   INITIAL_BACKOFF: {{ .Values.config.initialBackoff | quote }}
   MAX_BACKOFF: {{ .Values.config.maxBackoff | quote }}
   BACKOFF_FACTOR: {{ .Values.config.backoffFactor | quote }}
   ENABLE_COMPRESSION: {{ .Values.config.enableCompression | quote }}
-  {{- if .Values.config.namespaceFilter }}
-  NAMESPACE_FILTER: {{ .Values.config.namespaceFilter | quote }}
-  {{- end }}
-  METRICS_ENABLED: {{ .Values.config.metricsEnabled | quote }}
-  METRICS_INTERVAL_MINUTES: {{ .Values.config.metricsIntervalMinutes | quote }}
+  ENABLE_METRICS_COLLECTION: {{ .Values.config.metricsCollectionEnabled | quote }}
+  METRICS_COLLECTION_INTERVAL: {{ .Values.config.metricsCollectionInterval | quote }}
+  ENABLE_EVENT_COLLECTION: {{ .Values.config.enableEventCollection | quote }}
+  EVENT_RETENTION: {{ .Values.config.eventRetention | quote }}
+  EVENT_POLL_INTERVAL: {{ .Values.config.eventPollInterval | quote }}
+  ENABLE_PROMETHEUS_EXPORTER: {{ .Values.config.prometheusExporterEnabled | quote }}
+  PORT: {{ .Values.config.port | quote }}
   LOG_LEVEL: {{ .Values.config.logLevel | quote }}
   LOG_FORMAT: {{ .Values.config.logFormat | quote }}

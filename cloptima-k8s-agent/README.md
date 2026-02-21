@@ -17,7 +17,7 @@ Deploy the Cloptima Kubernetes Agent to collect cluster inventory and metrics th
      --set config.cloudAccountID="<your-cloud-account-uuid>" \
      --set config.cloptimaApiURL="https://api.cloptima.ai"
    ```
-3. (Optional) Use a custom values file if you want to change image tags, resources, namespace filters, or metrics scraping intervals:
+3. (Optional) Use a custom values file if you want to change image tags, resources, or metrics scraping intervals:
    ```bash
    helm install cloptima-k8s-agent cloptima/cloptima-k8s-agent -f my-values.yaml
    ```
@@ -58,7 +58,7 @@ helm uninstall cloptima-k8s-agent --namespace cloptima
   ```
 - 401/403 errors from the Cloptima API usually indicate mismatched `config.customerID` or `config.cloudAccountID` values.
 - RBAC errors ("forbidden") mean the default service account could not read cluster resources; ensure the namespace was created and that the chart-managed ClusterRole/ClusterRoleBinding were installed successfully.
-- If you changed API rate limits (QPS/burst) or namespace filters, confirm the values rendered into the ConfigMap by running `kubectl get configmap cloptima-k8s-agent -n cloptima -o yaml`.
+- If you changed API rate limits (QPS/burst), confirm the values rendered into the ConfigMap by running `kubectl get configmap cloptima-k8s-agent -n cloptima -o yaml`.
 
 ## Support
 
