@@ -37,7 +37,7 @@ spec:
           {{- toYaml .Values.securityContext | nindent 12 }}
         env:
         - name: REGISTRATION_API_URL
-          value: {{ default .Values.config.cloptimaApiURL .Values.registration.apiUrl | quote }}
+          value: {{ .Values.config.cloptimaApiURL | quote }}
         - name: REGISTRATION_CONFIGMAP_NAME
           value: {{ include "cloptima-k8s-agent.fullname" . }}
         - name: REGISTRATION_SECRET_NAME
@@ -72,13 +72,19 @@ spec:
         envFrom:
         - configMapRef:
             name: {{ include "cloptima-k8s-agent.fullname" . }}
-        {{- if or .Values.registration.enabled .Values.secrets.existingSecret }}
-        - secretRef:
-            name: {{ include "cloptima-k8s-agent.secretName" . }}
+        {{- $hasCredentialSecret := or .Values.registration.enabled .Values.secrets.existingSecret }}
+        {{- if or $hasCredentialSecret .Values.env }}
+        env:
+        {{- if $hasCredentialSecret }}
+        - name: API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "cloptima-k8s-agent.secretName" . }}
+              key: API_KEY
         {{- end }}
         {{- with .Values.env }}
-        env:
-          {{- toYaml . | nindent 12 }}
+{{ toYaml . | nindent 8 }}
+        {{- end }}
         {{- end }}
         ports:
         - name: http

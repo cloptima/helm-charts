@@ -9,12 +9,11 @@ Deploy the Cloptima Kubernetes Agent to collect cluster inventory and metrics th
    helm repo add cloptima https://cloptima.github.io/helm-charts
    helm repo update
    ```
-2. Provide the required identifiers issued during onboarding and install:
+2. Provide the onboarding registration token and install:
    ```bash
    helm install cloptima-k8s-agent cloptima/cloptima-k8s-agent \
      --namespace cloptima --create-namespace \
-     --set config.customerID="<your-customer-uuid>" \
-     --set config.cloudAccountID="<your-cloud-account-uuid>" \
+     --set registration.installationToken="<your-installation-token>" \
      --set config.cloptimaApiURL="https://api.cloptima.ai"
    ```
 3. (Optional) Use a custom values file if you want to change image tags, resources, or metrics scraping intervals:
@@ -26,8 +25,7 @@ Deploy the Cloptima Kubernetes Agent to collect cluster inventory and metrics th
 
 | Key | Description |
 | --- | --- |
-| `config.customerID` | Customer UUID assigned by Cloptima |
-| `config.cloudAccountID` | Cloud account UUID for the monitored environment |
+| `registration.installationToken` | One-time cluster registration token issued by Cloptima |
 | `config.cloptimaApiURL` | API endpoint to send collected data (defaults to `https://api.cloptima.ai`) |
 
 ### Common overrides
@@ -56,7 +54,7 @@ helm uninstall cloptima-k8s-agent --namespace cloptima
   ```bash
   kubectl logs -l app.kubernetes.io/name=cloptima-k8s-agent -n cloptima -f
   ```
-- 401/403 errors from the Cloptima API usually indicate mismatched `config.customerID` or `config.cloudAccountID` values.
+- 401/403 errors from the Cloptima API usually indicate an invalid/expired `registration.installationToken` during onboarding, or an invalid persisted `API_KEY` after onboarding.
 - RBAC errors ("forbidden") mean the default service account could not read cluster resources; ensure the namespace was created and that the chart-managed ClusterRole/ClusterRoleBinding were installed successfully.
 - If you changed API rate limits (QPS/burst), confirm the values rendered into the ConfigMap by running `kubectl get configmap cloptima-k8s-agent -n cloptima -o yaml`.
 

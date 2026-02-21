@@ -7,8 +7,6 @@ metadata:
   labels:
     {{- include "cloptima-k8s-agent.labels" . | nindent 4 }}
 data:
-  CUSTOMER_ID: {{ if $existingCM }}{{ index $existingCM.data "CUSTOMER_ID" | quote }}{{ else }}{{ .Values.config.customerID | quote }}{{ end }}
-  CLOUD_ACCOUNT_ID: {{ if $existingCM }}{{ index $existingCM.data "CLOUD_ACCOUNT_ID" | quote }}{{ else }}{{ .Values.config.cloudAccountID | quote }}{{ end }}
   CLUSTER_NAME: {{ if $existingCM }}{{ index $existingCM.data "CLUSTER_NAME" | quote }}{{ else }}{{ .Values.config.clusterName | quote }}{{ end }}
   CLOPTIMA_API_URL: {{ .Values.config.cloptimaApiURL | quote }}
   K8S_API_QPS: {{ .Values.config.k8sAPIQPS | quote }}

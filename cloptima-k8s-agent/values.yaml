@@ -62,8 +62,7 @@ affinity: {}
 ## Collector Configuration
 config:
   ## Cloptima Platform
-  customerID: ""  # REQUIRED: Your Cloptima customer ID (UUID)
-  cloudAccountID: ""  # REQUIRED: Cloud account ID (UUID)
+  # CUSTOMER_ID and CLOUD_ACCOUNT_ID are populated by the registration init container.
   clusterName: ""  # Optional override; defaults to auto-detected
   cloptimaApiURL: "https://api.cloptima.ai"
 
@@ -165,7 +164,6 @@ extraVolumeMounts: []
 ## Registration (K8s onboarding)
 registration:
   enabled: true
-  apiUrl: ""
   installationToken: ""  # Provided during onboarding
   skipIfConfigured: true
   httpTimeout: "30s"
