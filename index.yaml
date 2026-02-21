@@ -3,9 +3,9 @@ entries:
   cloptima-k8s-agent:
   - apiVersion: v2
     appVersion: v0.1.1
-    created: "2025-12-12T17:32:06.104441296Z"
+    created: "2026-02-21T17:26:51.343106304Z"
     description: Cloptima Kubernetes resource and metrics agent
-    digest: d6cd7ff158eaafc9ae53dbf2874bd7d6cfdee65399f4b59dc9fe41da8c02f165
+    digest: 5a29903f870fd68d209109e18a4eb1a1731f812a68d85c89ce0707f244a84ed9
     home: https://github.com/cloptima/helm-charts
     keywords:
     - kubernetes
@@ -77,4 +77,4 @@ entries:
     urls:
     - https://cloptima.github.io/helm-charts/cloptima-k8s-agent-0.1.0.tgz
     version: 0.1.0
-generated: "2025-12-12T17:32:06.103592712Z"
+generated: "2026-02-21T17:26:51.34143606Z"
